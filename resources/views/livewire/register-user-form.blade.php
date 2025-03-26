@@ -1,6 +1,7 @@
 <div class="mt-10 mx-auto max-w-screen-xl px-4 lg:px-12">
     <div class="bg-white relative shadow-md sm:rounded-lg overflow-hidden p-6">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Add New User</h2>
+        <div wire:dirty>Unsaved changes</div>
         @if (session('status'))
             <h3>{{ session('status') }}</h3>
         @endif

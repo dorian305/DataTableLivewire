@@ -76,6 +76,7 @@
                                     <td class="px-4 py-3 h-full flex items-center justify-center align-middle">
                                         <button class="px-3 py-1 bg-red-500 text-white rounded"
                                             wire:click="deleteUser({{ $user->id }})"
+                                            wire:confirm="You sure about that?"
                                         >X</button>
                                     </td>
                                 </tr>

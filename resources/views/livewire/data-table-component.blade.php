@@ -57,7 +57,27 @@
                                     <th scope="row"
                                         class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
                                         {{ $user->id }}</th>
-                                    <td class="px-4 py-3">{{ $user->name }}</td>
+                                    <td
+                                        class="px-4 py-3"
+                                        x-data="{
+                                            isEditing: false,
+                                            content: '{{ $user->name }}',
+                                        }"
+                                    >
+                                        <div x-show="!isEditing" @click="isEditing = true" x-text="content"></div>
+                                        <div x-show="isEditing">
+                                            <input
+                                                type="text"
+                                                value="{{ $user->name }}"
+                                                @keydown.esc="isEditing = false"
+                                                @keydown.enter="
+                                                    content = $el.value;
+                                                    success = $wire.updateField({{ $user->id }}, 'name', content);
+                                                    isEditing = false;
+                                                "
+                                            >
+                                        </div>
+                                    </td>
                                     <td class="px-4 py-3 text-center">
                                         @if ($user->profile_photo_path)
                                             <img src="{{ Storage::url($user->profile_photo_path ?? '') }}" alt="Profile Preview" class="h-16 w-16 mx-auto object-cover rounded-full">
@@ -65,7 +85,27 @@
                                             No photo
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3">{{ $user->email }}</td>
+                                    <td
+                                        class="px-4 py-3"
+                                        x-data="{
+                                            isEditing: false,
+                                            content: '{{ $user->email }}'
+                                        }"
+                                    >
+                                        <div x-show="!isEditing" @click="isEditing = true" x-text="content"></div>
+                                        <div x-show="isEditing">
+                                            <input
+                                                type="text"
+                                                value="{{ $user->email }}"
+                                                @keydown.esc="isEditing = false"
+                                                @keydown.enter="
+                                                    content = $el.value;
+                                                    $wire.updateField({{ $user->id }}, 'email', content);
+                                                    isEditing = false;
+                                                "
+                                            >
+                                        </div>
+                                    </td>
                                     <td class="px-4 py-3">
                                         <span class="{{ $user->role === 1 ? 'text-green-500' : '' }}">
                                             {{ $user->role === 1 ? 'admin' : 'user' }}

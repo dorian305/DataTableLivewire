@@ -42,6 +42,21 @@ class DataTableComponent extends Component
         }
     }
 
+    public function updateField(int $userId, string $field, mixed $value): void
+    {
+        $user = User::findOrFail($userId);
+
+        if ($field === 'email' && User::where($field, '=', $value)->exists()) {
+            $this->dispatch('email-taken');
+
+            return;
+        }
+
+        $user->update([
+            $field => $value,
+        ]);
+    }
+
     #[On('user-created')]
     public function updateUsers(): void
     {
@@ -56,11 +71,6 @@ class DataTableComponent extends Component
             )
             ->orderBy($this->sortingColumn, $this->sortingDirection)
             ->paginate($this->itemsPerPage);
-    }
-
-    public function mount(): void
-    {
-        $this->users = $this->users();
     }
 
     public function render()

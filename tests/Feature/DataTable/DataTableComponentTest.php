@@ -2,9 +2,11 @@
 
 namespace Tests\Feature\DataTable;
 
-use App\Enums\UserRole;
 use App\Livewire\RegisterUserForm;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -12,59 +14,81 @@ class DataTableComponentTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function test_form_can_create_new_user()
+    private function getTestUserData(): array
     {
-        $userData = [
-            'name'     => 'John',
-            'email'    => 'john@example.com',
-            'password' => 'secret123',
-            'role'     => UserRole::USER->value,
+        return [
+            [
+                'firstName' => 'Johna',
+                'lastName' => 'Bohna',
+                'email'    => 'email1@email.com',
+                'profilePhoto' => null,
+                'password' => 'secret123',
+                'confirmPassword' => 'secret123',
+            ],
+            [
+                'firstName' => 'Klona',
+                'lastName' => 'Brez slona',
+                'email'    => 'email2@email.com',
+                'profilePhoto' => null,
+                'password' => 'secret123',
+                'confirmPassword' => 'secret123',
+            ],
         ];
-
-        Livewire::test(RegisterUserForm::class)
-            ->set('name', $userData['name'])
-            ->set('email', $userData['email'])
-            ->set('password', $userData['password'])
-            ->set('role', $userData['role'])
-            ->call('submit')
-            ->assertHasNoErrors();
-
-            $this->assertDatabaseHas('users', [
-                'name' => $userData['name'],
-                'email' => $userData['email'],
-                'role' => $userData['role'],
-            ]);
     }
 
-    public function test_duplicate_email_not_allowed()
+    private function tryCreatingUser(array $userData, bool $expectErrors): void
     {
-        $userData1 = [
-            'name'     => 'John',
-            'email'    => 'john@example.com',
-            'password' => 'secret123',
-            'role'     => UserRole::USER->value,
-        ];
-        $userData2 = [
-            'name'     => 'Blan',
-            'email'    => 'john@example.com',
-            'password' => 'secret123',
-            'role'     => UserRole::USER->value,
-        ];
+        $test = Livewire::test(RegisterUserForm::class)
+            ->set('firstName', $userData['firstName'])
+            ->set('lastName', $userData['lastName'])
+            ->set('email', $userData['email'])
+            ->set('profilePhoto', $userData['profilePhoto'])
+            ->set('password', $userData['password'])
+            ->set('confirmPassword', $userData['confirmPassword'])
+            ->call('createUser');
 
-        Livewire::test(RegisterUserForm::class)
-            ->set('name', $userData1['name'])
-            ->set('email', $userData1['email'])
-            ->set('password', $userData1['password'])
-            ->set('role', $userData1['role'])
-            ->call('submit')
-            ->assertHasNoErrors();
+        if ($expectErrors) {
+            $test->assertHasErrors();
+        } else {
+            $test->assertHasNoErrors();
+        }
+    }
 
-        Livewire::test(RegisterUserForm::class)
-            ->set('name', $userData2['name'])
-            ->set('email', $userData2['email'])
-            ->set('password', $userData2['password'])
-            ->set('role', $userData2['role'])
-            ->call('submit')
-            ->assertHasErrors();
+    public function test_can_create_new_user(): void
+    {
+        $userData = $this->getTestUserData()[0];
+
+        $this->tryCreatingUser($userData, false);
+        $this->assertDatabaseHas('users', [
+            'name' => "{$userData['firstName']} {$userData['lastName']}",
+            'email' => $userData['email'],
+        ]);
+    }
+
+    public function test_duplicate_email_not_allowed(): void
+    {
+        $userData1 = $this->getTestUserData()[0];
+        $userData2 = $this->getTestUserData()[1];
+        $userData2['email'] = $userData1['email'];
+
+        $this->tryCreatingUser($userData1, false);
+        $this->tryCreatingUser($userData2, true);
+    }
+
+    public function test_user_profile_photo_is_uploaded_on_creation(): void
+    {
+        $userData = $this->getTestUserData()[0];
+        $profilePhoto = UploadedFile::fake()->image('profile_photo.png');
+        $userData['profilePhoto'] = $profilePhoto;
+
+        $this->tryCreatingUser($userData, false);
+
+        $user = User::where('email', '=', $userData['email'])->first();
+
+        $this->assertNotNull($user->profile_photo_path, "Profile photo path was not set properly.");
+        Storage::disk('public')->assertExists($user->profile_photo_path);
+
+        // Cleanup: delete the uploaded profile photo
+        Storage::disk('public')->delete($user->profile_photo_path);
     }
 }

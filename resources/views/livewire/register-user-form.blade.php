@@ -1,4 +1,4 @@
-<div class="max-w-xl mx-auto p-6 bg-white shadow rounded-md">
+<div class="mx-auto max-w-screen-xl p-4 my-10 bg-white shadow rounded-md">
     <!-- Flash Message Section -->
     @if (session('created'))
         <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">

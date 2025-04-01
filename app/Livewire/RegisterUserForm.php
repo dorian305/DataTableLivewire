@@ -25,6 +25,11 @@ class RegisterUserForm extends Component
     public $profilePhoto;
     public int $currentFormPage = 1;
     public int $formPages = 3;
+    public array $steps = [
+        1 => 'Personal information',
+        2 => 'Profile picture',
+        3 => 'Password',
+    ];
 
     public array $validationRules = [
         1 => [

@@ -6,12 +6,29 @@
         </div>
     @endif
 
+    <div class="mb-6">
+        <div class="flex items-center">
+            @foreach ($steps as $step => $title)
+                <div class="flex-1">
+                    <div class="w-full h-2 {{ $currentFormPage >= $step ? 'bg-blue-600' : 'bg-gray-300' }}">
+
+                    </div>
+                    <div class="mt-2 text-center">
+                        <span class="{{ $currentFormPage === $step ? 'font-semibold text-blue-600' : 'text-gray-500' }}">
+                            {{ $title }}
+                        </span>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+
     <form wire:submit.prevent="createUser">
 
         @if ($currentFormPage === 1)
             <!-- Section 1: Personal Information -->
             <div class="mb-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Personal Information</h2>
                 <div class="mb-4">
                     <label for="firstName" class="block text-gray-700">First name</label>
                     <input id="firstName" type="text" wire:model.live="firstName" placeholder="Enter your first name"
@@ -42,7 +59,6 @@
         @if ($currentFormPage === 2)
             <!-- Section 2: Profile Picture -->
             <div class="mb-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Profile Picture</h2>
                 <div>
                     <input id="photo" type="file" wire:model.live="profilePhoto"
                         class="block w-full text-sm text-gray-900 border border-gray-300 rounded-md cursor-pointer bg-gray-50 focus:outline-none" />
@@ -63,7 +79,6 @@
         @if ($currentFormPage === $formPages)
             <!-- Section 3: Profile Password -->
             <div class="mb-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Profile Password</h2>
                 <div class="mb-4">
                     <label for="password" class="block text-gray-700">Password</label>
                     <input id="password" type="password" wire:model.live="password" placeholder="Enter your password"

@@ -2,60 +2,73 @@
 
 namespace App\Livewire;
 
-use App\Enums\UserRole;
 use App\Models\User;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 class RegisterUserForm extends Component
 {
-    use WithFileUploads;
-
-    #[Validate('required|string|max:10')]
-    public string $name = '';
-
-    #[Validate('required|email|unique:users,email')]
+    #[Validate(['required', 'string', 'min:5', 'max:10'])] 
+    public string $firstName = '';
+    #[Validate(['required', 'string', 'min:5', 'max:10'])]
+    public string $lastName = '';
+    #[Validate(['required', 'email'])]
     public string $email = '';
-
-    #[Validate('required|string|min:8')]
+    #[Validate(['required', 'min:8'])]
     public string $password = '';
-    
-    public int $role = UserRole::USER->value;
-
-    #[Validate('nullable|image')]
+    #[Validate(['required', 'min:8', 'same:password'])]
+    public string $confirmPassword = '';
+    #[Validate(['nullable', 'image'])]
     public $profilePhoto;
+    public int $currentFormPage = 1;
+    public int $formPages = 3;
 
-    public function submit(): void
-    {
-        $this->validate();
-
-        $user = User::create([
-            'name' => $this->name,
-            'email' => $this->email,
-            'password' => $this->password,
-            'role' => $this->role,
-        ]);
-
-        if ($this->profilePhoto) {
-            $user->updateProfilePhoto($this->profilePhoto);
-        }
-
-        $this->reset([
-            'name',
-            'email',
-            'password',
-            'role',
-            'profilePhoto',
-        ]);
-
-        session()->flash('status', 'New user created!');
-
-        $this->dispatch('user-created');
-    }
+    public array $validationRules = [
+        1 => [
+            'firstName' => ['required', 'string', 'min:5', 'max:10'],
+            'lastName' => ['required', 'string', 'min:5', 'max:10'],
+            'email' => ['required', 'email', 'unique:users,email'],
+        ],
+        2 => [
+            'profilePhoto' => ['nullable', 'image'],
+        ],
+        3 => [
+            'password' => ['required', 'min:8'],
+            'confirmPassword' => ['required', 'min:8', 'same:password'],
+        ],
+    ];
 
     public function render()
     {
         return view('livewire.register-user-form');
+    }
+
+    public function goToNextPage(): void
+    {
+        $this->validate($this->validationRules[$this->currentFormPage]);
+
+        $this->currentFormPage++;
+    }
+
+    public function goToPreviousPage(): void
+    {
+        $this->currentFormPage--;
+    }
+
+    public function createUser(): void
+    {
+        $validationRules = collect($this->validationRules)
+            ->collapse()
+            ->toArray();
+
+        $this->validate($validationRules);
+
+        $user = User::create([
+            'name' => "{$this->firstName} {$this->lastName}",
+            'email' => $this->email,
+            'password' => $this->password,
+        ]);
+
+        session()->flash('created', 'User created successfully!');
     }
 }

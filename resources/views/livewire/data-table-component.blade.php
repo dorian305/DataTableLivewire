@@ -82,8 +82,8 @@
                                                     isEditing = false;
                                                     content = $el.value;
                                                     
-                                                    $wire.updateField({{ $user->id }}, 'name', content);
-                                                    $wire.$refresh();
+                                                    $wire.updateField({{ $user->id }}, 'name', content)
+                                                        .then(() => $wire.$refresh());
                                                 "
                                             >
                                         </div>
@@ -121,8 +121,8 @@
                                                     isEditing = false;
                                                     content = $el.value;
 
-                                                    $wire.updateField({{ $user->id }}, 'email', content);
-                                                    $wire.$refresh();
+                                                    $wire.updateField({{ $user->id }}, 'email', content)
+                                                        .then(() => $wire.$refresh());
                                                 "
                                             >
                                         </div>

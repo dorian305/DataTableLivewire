@@ -1,7 +1,6 @@
 <div>
     <section class="mt-10">
         <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
-            <!-- Start coding here -->
             <div class="bg-white relative shadow-md sm:rounded-lg overflow-hidden">
                 <div class="flex items-center justify-between d p-4">
                     <div class="flex">
@@ -61,19 +60,30 @@
                                         class="px-4 py-3"
                                         x-data="{
                                             isEditing: false,
-                                            content: '{{ $user->name }}',
                                         }"
                                     >
-                                        <div x-show="!isEditing" @click="isEditing = true" x-text="content"></div>
+                                        <div
+                                            x-show="!isEditing"
+                                            @click="
+                                                isEditing = true;
+                                                setTimeout(() => $refs.input.focus(), 50);
+                                            "
+                                        >
+                                            {{ $user->name }}
+                                        </div>
                                         <div x-show="isEditing">
                                             <input
                                                 type="text"
                                                 value="{{ $user->name }}"
+                                                x-ref="input"
+                                                @blur="isEditing = false"
                                                 @keydown.esc="isEditing = false"
                                                 @keydown.enter="
-                                                    content = $el.value;
-                                                    success = $wire.updateField({{ $user->id }}, 'name', content);
                                                     isEditing = false;
+                                                    content = $el.value;
+                                                    
+                                                    $wire.updateField({{ $user->id }}, 'name', content);
+                                                    $wire.$refresh();
                                                 "
                                             >
                                         </div>
@@ -89,19 +99,30 @@
                                         class="px-4 py-3"
                                         x-data="{
                                             isEditing: false,
-                                            content: '{{ $user->email }}'
                                         }"
                                     >
-                                        <div x-show="!isEditing" @click="isEditing = true" x-text="content"></div>
+                                        <div
+                                            x-show="!isEditing"
+                                            @click="
+                                                isEditing = true;
+                                                setTimeout(() => $refs.input.focus(), 50);
+                                            "
+                                        >
+                                            {{ $user->email }}
+                                        </div>
                                         <div x-show="isEditing">
                                             <input
                                                 type="text"
                                                 value="{{ $user->email }}"
+                                                x-ref="input"
+                                                @blur="isEditing = false"
                                                 @keydown.esc="isEditing = false"
                                                 @keydown.enter="
-                                                    content = $el.value;
-                                                    $wire.updateField({{ $user->id }}, 'email', content);
                                                     isEditing = false;
+                                                    content = $el.value;
+
+                                                    $wire.updateField({{ $user->id }}, 'email', content);
+                                                    $wire.$refresh();
                                                 "
                                             >
                                         </div>
@@ -116,7 +137,7 @@
                                     <td class="px-4 py-3 h-full flex items-center justify-center align-middle">
                                         <button class="px-3 py-1 bg-red-500 text-white rounded"
                                             wire:click="deleteUser({{ $user->id }})"
-                                            wire:confirm="You sure about that?"
+                                            wire:confirm.prompt="Are you sure you want to delete the user?\n\nType DELETE to confirm|DELETE"
                                         >X</button>
                                     </td>
                                 </tr>

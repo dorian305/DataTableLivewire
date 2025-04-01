@@ -46,6 +46,8 @@ class DataTableComponent extends Component
     {
         $user = User::findOrFail($userId);
 
+        // if ($field === 'name' &&)
+
         if ($field === 'email' && User::where($field, '=', $value)->exists()) {
             $this->dispatch('email-taken');
 

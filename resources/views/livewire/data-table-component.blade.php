@@ -89,11 +89,11 @@
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 text-center">
-                                        @if ($user->profile_photo_path)
-                                            <img src="{{ Storage::url($user->profile_photo_path ?? '') }}" alt="Profile Preview" class="h-16 w-16 mx-auto object-cover rounded-full">
-                                        @else
-                                            No photo
-                                        @endif
+                                        <img
+                                            src="{{ $user->profile_photo_path ? Storage::url($user->profile_photo_path) : $user->getDefaultProfilePhoto() }}"
+                                            alt="Profile Preview"
+                                            class="h-16 w-16 mx-auto object-cover rounded-full"
+                                        >
                                     </td>
                                     <td
                                         class="px-4 py-3"

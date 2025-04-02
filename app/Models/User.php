@@ -72,4 +72,9 @@ class User extends Authenticatable
         $query->where('name', 'like', "%{$searchValue}%")
             ->orWhere('email', 'like', "%{$searchValue}%");
     }
+
+    public function getDefaultProfilePhoto(): string
+    {
+        return $this->defaultProfilePhotoUrl();
+    }
 }
